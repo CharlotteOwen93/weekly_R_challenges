@@ -1,5 +1,5 @@
 library(tidyverse)
-
+library(gtools)
 # Description
 # You and your friend wish to summit Mount Everest the highest peak in the world. One problem: you live at sea level and despite being in great shape haven't been at altitude very long. So you propose a series of stays on mountaintops around the world using increasing elevations to prepare your body for the extremes you'll encounter.
 # You and your friend gather a list of mountain peaks that you'd like to visit on your way there. You can't deviate from your path but you can choose to go up the mountain or not. But you have to pick ones that go higher than the previous one. If you go down your body will suffer and your trip to the summit of Everest will be in peril.
@@ -32,12 +32,55 @@ library(tidyverse)
 #calculate how many peaks higher infront of each peak
 
 test <- c(0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15)
+test2 <- c(1, 2, 4, 6)
 
 future_peaks_higher <- function(mountains, start){
-	m <- mountains[-start] #only drops start, not prior to start
-	higher <- m[m>start]
+  # start is the peak POSITION in vector, not height
+	to_drop <- seq(1,start)
+  m <- mountains[-to_drop] 
+	higher <- m[m>mountains[start]]
 	return(higher)
 }
 
-test_higher_than <- future_peaks_higher(test,3)
+squared <- function(x,y){
+  x^(2/y)
+}
+
+boo <- mapply(future_peaks_higher,test2,test2)
+
+how_many_ahead <- mapply(future_peaks_higher,test,test)
+
+test_higher_than <- future_peaks_higher(test,4)
 length(test_higher_than)
+
+# mapply won't work, using loops
+future_peaks_higher_loop <- function(mountains, start){
+  # start is the peak POSITION in vector, not height
+  print("mountains")
+  print(mountains)
+  print("start")
+  print(start)
+  to_drop <- seq(1,start)
+  m <- mountains[-to_drop] 
+  higher <- m[m>mountains[start]]
+  return(higher)
+}
+
+peaks_ahead <- c(rep(NA,length(test)))
+for(s in seq(1,length(test))){
+  print("s")
+  print(s)
+  peaks_ahead[s] <- length(future_peaks_higher_loop(test,s))
+  print("number of higher peaks ahead")
+  print(peaks_ahead[s])
+}
+
+# do we need to use permutations
+
+output <- data.frame()
+for(i in seq(1,length(test2))){
+  temp <- permutations(n=4,r=i,v=test2)
+  output <- bind_rows(output,temp)
+}
+permutations(n=4,r=i,v=test2)
+permutations(n=4,r=3,v=test2)
